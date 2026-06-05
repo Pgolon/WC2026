@@ -1,0 +1,342 @@
+bash
+
+cat > /home/claude/index.html << 'HTMLEOF'
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MŚ 2026 — Encyklopedia drużyn</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0a0f;--bg2:#12121a;--bg3:#1a1a26;--bg4:#22223a;
+  --border:#2a2a40;--border2:#3a3a58;
+  --text:#f0f0f8;--text2:#8888aa;--text3:#5a5a7a;
+  --accent:#DEF964;--accent2:#0C4E4C;
+  --green:#4ade80;--red:#f87171;--blue:#60a5fa;--gold:#fbbf24;--coral:#fb923c;
+}
+html,body{height:100%;font-family:system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text)}
+.lp{max-width:1400px;margin:0 auto;min-height:100vh}
+
+.lp-hero{background:var(--bg2);border-bottom:1px solid var(--border);padding:24px 28px 18px}
+.hero-eyebrow{font-size:10px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:8px}
+.hero-title{font-size:28px;font-weight:600;color:var(--text);line-height:1.15;margin-bottom:5px}
+.hero-sub{font-size:13px;color:var(--text2)}
+.view-toggle{display:flex;gap:0;background:var(--bg4);border:1px solid var(--border2);border-radius:8px;padding:3px;width:fit-content;margin:16px 0 0}
+.vt-btn{font-size:11px;font-weight:500;padding:7px 18px;border-radius:6px;cursor:pointer;border:1px solid var(--border2);display:flex;align-items:center;gap:6px;transition:all .15s;background:var(--bg3);color:var(--text2)}
+.vt-btn+.vt-btn{margin-left:4px}
+.vt-btn:not(.active):hover{background:var(--bg4);color:var(--text)}
+.vt-btn.active{background:var(--accent2);color:var(--accent);border-color:var(--accent2)}
+
+.toolbar{display:flex;gap:8px;align-items:center;padding:12px 28px;border-bottom:1px solid var(--border);background:var(--bg2);flex-wrap:wrap}
+.search-wrap{position:relative;flex:1;min-width:150px;max-width:240px}
+.search-wrap input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:6px;color:var(--text);font-size:12px;padding:7px 10px 7px 30px;outline:none}
+.search-wrap input::placeholder{color:var(--text3)}
+.search-wrap input:focus{border-color:var(--accent2)}
+.search-ico{position:absolute;left:9px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--text2)}
+.vsep{width:1px;height:22px;background:var(--border2);flex-shrink:0}
+.grp-filter{display:flex;gap:4px;flex-wrap:wrap}
+.gf{font-size:10px;padding:5px 12px;border-radius:4px;border:1px solid var(--border2);background:var(--bg3);color:var(--text2);cursor:pointer;transition:all .12s}
+.gf:hover{background:var(--bg4);color:var(--text)}
+.gf.on{background:var(--accent2);color:var(--accent);border-color:var(--accent2)}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;table-layout:fixed;min-width:960px}
+thead th{position:sticky;top:0;z-index:10;background:var(--bg3);border-bottom:1px solid var(--border2);font-size:9px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;color:var(--text2);padding:9px 10px;text-align:left;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover .th-label{color:var(--text)}
+thead th.s-asc .th-label,thead th.s-desc .th-label{color:var(--accent)}
+.th-inner{display:flex;align-items:center;gap:5px}
+.th-label{transition:color .12s}
+.si{display:flex;flex-direction:column;gap:1.5px;flex-shrink:0}
+.sa{width:0;height:0;border-left:3.5px solid transparent;border-right:3.5px solid transparent;opacity:.2}
+.sa-up{border-bottom:4px solid var(--text2)}
+.sa-dn{border-top:4px solid var(--text2)}
+th.s-asc .sa-up{opacity:1;border-bottom-color:var(--accent)}
+th.s-asc .sa-dn{opacity:.12}
+th.s-desc .sa-dn{opacity:1;border-top-color:var(--accent)}
+th.s-desc .sa-up{opacity:.12}
+.col-flag{width:158px}.col-rank{width:54px}.col-pop{width:82px}.col-gdp{width:100px}
+.col-val{width:92px}.col-goals{width:96px}.col-hdi{width:92px}.col-age{width:54px}.col-ms{width:54px}
+tbody tr{border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s}
+tbody tr:hover{background:var(--bg3)}
+tbody tr.row-open{background:var(--bg3);border-bottom:none}
+tbody tr.detail-row{background:var(--bg2);border-bottom:1px solid var(--border2);cursor:default}
+tbody tr.detail-row:hover{background:var(--bg2)}
+tbody tr.detail-row td{padding:0}
+tbody tr.ghost{cursor:default;opacity:.25}
+tbody tr.ghost:hover{background:transparent}
+tbody td{padding:10px 10px;font-size:12px;color:var(--text);vertical-align:middle}
+.grp-hdr-row{cursor:pointer}
+.grp-hdr-row td{background:var(--bg)!important;padding:8px 10px 5px;border-bottom:1px solid var(--border)}
+.grp-hdr-row:hover td{background:var(--bg3)!important}
+.grp-hdr-inner{display:flex;align-items:center;gap:8px}
+.grp-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text2)}
+.grp-pill{font-size:9px;padding:2px 8px;border-radius:3px;background:var(--bg3);border:1px solid var(--border2);color:var(--text2)}
+.grp-chev{font-size:14px;color:var(--text2);margin-left:auto;display:inline-block;transition:transform .2s}
+.grp-chev.open{transform:rotate(180deg)}
+.country-cell{display:flex;align-items:center;gap:8px}
+.flag-em{font-size:18px;line-height:1}
+.country-name{font-size:13px;font-weight:500}
+.grp-pip{font-size:8px;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:3px;padding:1px 5px;margin-left:2px}
+.rank-num{font-size:14px;font-weight:600;text-align:center}
+.bar-cell{display:flex;flex-direction:column;gap:3px}
+.mbar{display:flex;align-items:center;gap:3px}
+.mbg{flex:1;height:4px;border-radius:2px;background:var(--border2);overflow:hidden}
+.mfill{height:100%;border-radius:2px}
+.mnum{font-size:10px;font-weight:500;min-width:34px;text-align:right}
+.mlbl{font-size:8px;color:var(--text2);min-width:13px}
+.hdi-row{display:flex;align-items:center;gap:4px}
+.hbg{flex:1;height:4px;border-radius:2px;background:var(--border2);overflow:hidden}
+.hfill{height:100%;border-radius:2px}
+.hnum{font-size:11px;font-weight:500;min-width:32px}
+.hrank{font-size:8.5px;color:var(--text2);margin-top:1px}
+.ig{display:flex;flex-wrap:wrap;gap:1px}.ic{font-size:9px}.id{font-size:9px;opacity:.1}
+.age-num,.ms-num{font-size:15px;font-weight:600;text-align:center}
+.chev-cell{width:30px;text-align:center;color:var(--text3)}
+.chev-cell span{font-size:14px;display:inline-block;transition:transform .2s}
+tr.row-open .chev-cell span{transform:rotate(180deg);color:var(--accent)}
+.detail-inner{padding:20px 24px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:16px}
+@media(max-width:900px){.detail-inner{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.detail-inner{grid-template-columns:1fr}}
+.dp{display:flex;flex-direction:column;gap:6px}
+.dp-title{font-size:8px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;color:var(--text2);padding-bottom:5px;border-bottom:1px solid var(--border);margin-bottom:2px}
+.star-r{display:flex;gap:5px;align-items:flex-start;margin-bottom:5px}
+.star-idx{font-size:8px;color:var(--text2);min-width:10px;padding-top:2px}
+.sname{font-size:11px;font-weight:500;color:var(--text);display:block;line-height:1.2}
+.sclub{font-size:8.5px;color:var(--text2);display:block}
+.brand-r{display:flex;gap:5px;align-items:flex-start;margin-bottom:5px;font-size:10px;color:var(--text2);line-height:1.35}
+.bdot{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.cw-item{display:flex;align-items:flex-start;gap:6px;margin-bottom:6px}
+.cw-ico{font-size:13px;flex-shrink:0;margin-top:1px}
+.cw-label{font-size:8px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:1px}
+.cw-val{color:var(--text);font-size:10.5px;display:block;line-height:1.45}
+.fact-card{background:var(--bg3);border:1px solid var(--border);border-radius:7px;padding:10px 12px;margin-top:4px}
+.fact-ey{font-size:8px;font-weight:500;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px;display:block}
+.fact-body{font-size:10px;color:var(--text2);line-height:1.55}
+.fact-body strong{color:var(--text)}
+.temp-chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;padding:4px 10px;border-radius:6px;margin-top:5px}
+.badge-sm{display:inline-block;font-size:8px;padding:2px 6px;border-radius:3px;font-weight:500;margin-bottom:3px}
+.bg-gold{background:#78350f;color:#fbbf24}.bg-coral{background:#7c2d12;color:#fb923c}
+.bg-blue{background:#1e3a5f;color:#60a5fa}.bg-gray{background:#2a2a3a;color:#8888aa}
+.bg-green{background:#14532d;color:#4ade80}
+.no-results{padding:50px;text-align:center;color:var(--text2);font-size:14px}
+.foot{padding:12px 28px;border-top:1px solid var(--border);background:var(--bg2);font-size:9.5px;color:var(--text3);text-align:center}
+</style>
+</head>
+<body>
+<div class="lp">
+<div class="lp-hero">
+  <div class="hero-eyebrow">FIFA World Cup 2026 · USA / Mexico / Canada</div>
+  <div class="hero-title">Encyklopedia drużyn</div>
+  <div class="hero-sub">Dane piłkarskie, ekonomiczne i kulturowe dla 48 uczestników. Kliknij wiersz aby rozwinąć pełny profil.</div>
+  <div class="view-toggle">
+    <button class="vt-btn active" id="btn-all" onclick="setView('all')">&#9776; Wszystkie zespoły</button>
+    <button class="vt-btn" id="btn-grp" onclick="setView('groups')">&#8864; Widok grupowy</button>
+  </div>
+</div>
+<div class="toolbar">
+  <div class="search-wrap">
+    <span class="search-ico">&#128269;</span>
+    <input type="text" id="search" placeholder="Szukaj kraju..." oninput="applyFilters()">
+  </div>
+  <div class="vsep"></div>
+  <div class="grp-filter">
+    <button class="gf on" data-g="all" onclick="setGroup(this)">Wszystkie</button>
+    <button class="gf" data-g="A" onclick="setGroup(this)">Gr. A</button>
+    <button class="gf" data-g="B" onclick="setGroup(this)">Gr. B</button>
+    <button class="gf" data-g="C" onclick="setGroup(this)">Gr. C</button>
+    <button class="gf" data-g="H" onclick="setGroup(this)">Gr. H</button>
+  </div>
+</div>
+<div class="tbl-wrap">
+<table id="main-table">
+<thead><tr id="thead-row">
+  <th class="col-flag" onclick="sortBy('name',0)"><div class="th-inner"><span class="th-label">Kraj</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-rank" onclick="sortBy('rank',1)"><div class="th-inner"><span class="th-label">FIFA</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-pop" onclick="sortBy('pop',2)"><div class="th-inner"><span class="th-label">Populacja</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-gdp" onclick="sortBy('gdp',3)"><div class="th-inner"><span class="th-label">PKB / os.</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-val" onclick="sortBy('val',4)"><div class="th-inner"><span class="th-label">Wartość kadry</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-goals" onclick="sortBy('goalsFor',5)"><div class="th-inner"><span class="th-label">Gole / mecz</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-hdi" onclick="sortBy('hdi',6)"><div class="th-inner"><span class="th-label">HDI</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-age" onclick="sortBy('age',7)"><div class="th-inner"><span class="th-label">Wiek</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th class="col-ms" onclick="sortBy('ms',8)"><div class="th-inner"><span class="th-label">MŚ</span><div class="si"><div class="sa sa-up"></div><div class="sa sa-dn"></div></div></div></th>
+  <th style="width:30px"></th>
+</tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+<div class="no-results" id="no-results" style="display:none">Brak wyników dla wybranych filtrów.</div>
+</div>
+<div class="foot">Źródła: FIFA V.2026 &middot; Transfermarkt &middot; World Bank &middot; UNDP HDR 2025 &middot; Grokipedia &middot; FotMob &middot; SportsMole &middot; 101greatgoals</div>
+</div>
+<script>
+const T=[
+{flag:'🇲🇽',name:'Meksyk',group:'A',rank:16,pop:130,gdp:11000,val:280,goalsFor:1.8,goalsAg:1.2,hdi:0.781,hdiRank:77,age:27.8,ms:17,msBest:'Ćwierćfinał',stars:[['S. Giménez','AC Milan · top strzelec'],['E. Álvarez','Fenerbahçe · kpt.'],['O. Vargas','Atl. Madryt · talent']],brands:[['Corona','najsłynniejsze piwo Meksyku — 180 krajów'],['Cemex','3. producent cementu świata'],['Bimbo','największa piekarnia globu']],tempVal:22,tempDesc:'Meksyk City w czerwcu — łagodna wiosna górska (2240 m n.p.m.)',tempBg:'#1a2e1a',tempTxt:'#4ade80',budget:'~120 mln USD',budgetNote:'FMF',cw:{moment:'17 edycji z rzędu bez ćwierćfinału — "quinto partido" to mit. Giménez: 14 goli w Serie A 2024/25. Gospodarz 2026.',export:'Nr 1 eksporter awokado na świecie — 80% globalnej podaży.',iphone:'1 iPhone ≈ 5 tygodni pracy przeciętnego Meksykanina.',film:'Iñárritu, del Toro, Cuarón — 3 Meksykanów z rzędu z Oscarem za reżyserię. "Roma" nakręcona w Mexico City.',food:'Tacos al pastor — wieprzowina na rożnie z ananasem. Symbol kuchni ulicznej.',famous:'Frida Kahlo, Salma Hayek, Guillermo del Toro.',economic:'Gospodarz — PKB skacze ~0,8% w roku imprezy. Mecze na Azteca generują ~300 mln USD lokalnie.'}},
+{flag:'🇿🇦',name:'RPA',group:'A',rank:60,pop:62,gdp:6700,val:80,goalsFor:1.4,goalsAg:1.3,hdi:0.713,hdiRank:109,age:26.8,ms:4,msBest:'Faza grupowa',stars:[['O. Appollis','Orlando Pirates · 6 G+A w kwal.'],['L. Foster','Burnley · 10 goli dla rep.'],['E. Makgopa','Orlando Pirates']],brands:[['Castle Lager','ikona piwa RPA'],['MTN Group','największa telco Afryki'],['Woolworths SA','premium detalista']],tempVal:15,tempDesc:'Johannesburg w czerwcu — zima półkuli południowej, sucho i chłodno',tempBg:'#1a1a2e',tempTxt:'#60a5fa',budget:'~25 mln USD',budgetNote:'SAFA',cw:{moment:'Gospodyni MŚ 2010 — pierwsze MŚ w Afryce. Tshabalala strzelił 1. gola turnieju. Vuvuzele podbiły świat.',export:'Nr 1 eksporter platyny na świecie — 70% globalnych zasobów.',iphone:'1 iPhone ≈ 2 miesiące pracy przeciętnego Południowoafrykańczyka.',film:'"Dystrykt 9" (2009) — nominowany do Oscara. "Invictus" — Mandela i rugby.',food:'Braai — grill na węglu drzewnym. Narodowy rytuał.',famous:'Nelson Mandela, Elon Musk (ur. Pretoria), Christiaan Barnard (1. przeszczep serca).',economic:'Powrót po 16 latach. Awans z grupy = historyczny rekord. Wzrost turystyki: +10%.'}},
+{flag:'🇰🇷',name:'Korea Płd.',group:'A',rank:22,pop:51.7,gdp:33000,val:260,goalsFor:1.7,goalsAg:1.1,hdi:0.929,hdiRank:19,age:28.2,ms:12,msBest:'4. miejsce (2002)',stars:[['Son Heung-min','Tottenham · kpt. · 120+ goli'],['Kim Min-jae','Bayern Munich'],['Kang-In Lee','PSG']],brands:[['Samsung','2. firma tech. świata wg przychodów'],['Hyundai/Kia','top 5 producentów aut'],['LG','elektronika i baterie EV']],tempVal:24,tempDesc:'Seul w czerwcu — ciepło, wilgotność rośnie przed monsunami',tempBg:'#1e1a2e',tempTxt:'#a78bfa',budget:'~40 mln USD',budgetNote:'KFA',cw:{moment:'Korea 2002: 4. miejsce jako gospodarz. Pokonali Niemcy, Hiszpanię, Włochy. Największy wynik Azji w historii MŚ.',export:'Nr 1 eksporter statków na świecie — 40% globalnego tonażu.',iphone:'1 iPhone ≈ 2 tygodnie pracy przeciętnego Koreańczyka.',film:'"Parasite" (2019) — 1. nieanglojęzyczny film z Oscarem za najlepszy film. "Squid Game" — 111 mln gosp. domowych.',food:'Kimchi — fermentowana kapusta z chili. Koreańczycy jedzą ~18 kg rocznie na osobę.',famous:'BTS, Bong Joon-ho, Ban Ki-moon (sekretarz generalny ONZ).',economic:'13. gospodarka świata. MŚ = platforma K-wave. Efekt branding: ~500 mln USD ekspozycji mediowej.'}},
+{flag:'🇨🇿',name:'Czechy',group:'A',rank:36,pop:10.9,gdp:27000,val:240,goalsFor:1.9,goalsAg:1.1,hdi:0.900,hdiRank:32,age:27.3,ms:4,msBest:'Finał (Czechosłowacja)',stars:[['P. Schick','Bayer Leverkusen · 25 goli dla rep.'],['T. Souček','West Ham · kpt.'],['L. Provod','Slavia Praga']],brands:[['Škoda Auto','część VW Group'],['Pilsner Urquell','wynalazek piwa pilzneńskiego, 1842'],['Avast','top firma cybersecurity']],tempVal:20,tempDesc:'Praga w czerwcu — przyjemne lato, turystyczny szczyt sezonu',tempBg:'#1a1e2e',tempTxt:'#60a5fa',budget:'~30 mln USD',budgetNote:'FAČR',cw:{moment:'20 lat przerwy od MŚ. Awans przez play-offy — pokonali Włochy. Schick: gol z własnej połowy vs Szkocja (Euro 2020). Czechosłowacja: Panenka 1976.',export:'Wynalazcy soczewek kontaktowych (Wichterle, 1961) i Škody (od 1895 r.).',iphone:'1 iPhone ≈ 3 tygodnie pracy przeciętnego Czecha.',film:'"Amadeusz" (1984, 8 Oscarów) nagrany w Pradze — "Hollywood Europy Środkowej".',food:'Svíčková — polędwica wołowa w kremowym sosie z knedlíkiem.',famous:'Franz Kafka, Antonín Dvořák, Jaromír Jágr.',economic:'Awans z grupy = szacowane 200 mln CZK dodatkowego przychodu sportowego.'}},
+{flag:'🇨🇦',name:'Kanada',group:'B',rank:35,pop:40,gdp:52000,val:340,goalsFor:1.8,goalsAg:1.0,hdi:0.935,hdiRank:15,age:27.1,ms:2,msBest:'Faza grupowa',stars:[['A. Davies','Bayern Munich · najszybszy obrońca świata'],['J. David','Juventus · top strzelec'],['A. Eustaquio','Porto · motor gry']],brands:[['Shopify','10% e-handlu USA'],['Lululemon','rewolucja odzieży sportowej'],['BlackBerry','dziś cybersecurity']],tempVal:20,tempDesc:'Toronto/Vancouver w czerwcu — przyjemne lato dla kibiców',tempBg:'#2e1a1a',tempTxt:'#f87171',budget:'~45 mln USD',budgetNote:'Canada Soccer',cw:{moment:'Gospodarz 2026. 1986 — ostatni raz na MŚ: 0 goli, 0 punktów. Davies: kontuzja w CL semi-final — wyścig z czasem do turnieju.',export:'Nr 1 eksporter drewna miękkiego i nr 2 producent oil sands.',iphone:'1 iPhone ≈ 1 tydzień pracy przeciętnego Kanadyjczyka.',film:'Ryan Gosling, Keanu Reeves, Jim Carrey — wszyscy Kanadyjczycy. "Blade Runner" kręcony w Kanadzie.',food:'Poutine — frytki z serem curds i sosem. Symbol kulinarnej tożsamości Kanady.',famous:'Drake, Wayne Gretzky, Justin Trudeau.',economic:'Gospodarz — bezpośredni wpływ: 1,5 mld CAD z turystyki MŚ w samej Kanadzie.'}},
+{flag:'🇧🇦',name:'Bośnia i Herc.',group:'B',rank:65,pop:3.2,gdp:8400,val:95,goalsFor:1.6,goalsAg:1.2,hdi:0.780,hdiRank:78,age:28.5,ms:2,msBest:'Faza grupowa (2014)',stars:[['E. Džeko','Fenerbahçe · 66+ goli · legenda'],['H. Hajradinović','Trabzonspor · pomocnik'],['D. Huremović','obrońca · Süper Lig']],brands:[['Sarajevska Pivara','warzone od 1864 r.'],['Prevent Group','komponenty auto dla Europy'],['Bingo!','sieć hipermarketów w regionie']],tempVal:24,tempDesc:'Sarajewo — ciepłe lato w dolinie otoczonej górami Bałkanów',tempBg:'#1a1a14',tempTxt:'#fbbf24',budget:'~8 mln USD',budgetNote:'NFSBiH',cw:{moment:'Awans przez play-offy: pokonali Walię, potem Włochy w finale. 3,2 mln mieszkańców — mniej niż Warszawa. Džeko ogłoszony w składzie w wieku 38 lat.',export:'Nr 1 producent malin na Bałkanach. Eksport drewna bukowego do Europy Zachodniej.',iphone:'1 iPhone ≈ 3 miesiące pracy przeciętnego mieszkańca BiH.',film:'"Niczyjej ziemi" — Danis Tanović, Oscar 2002. Sarajewo: dwie olimpiady (1984) i oblężenie (1992–95).',food:'Ćevapi — grillowane kiełbaski mielone w lepinje z cebulą. Absolutny symbol BiH.',famous:'Emir Kusturica (reżyser), Goran Bregović (muzyk), Jusuf Nurkić (NBA).',economic:'MŚ = platforma wizerunkowa dla kraju ciągle kojarzącego się z wojną lat 90. Szacowany 10× wzrost zapytań turystycznych.'}},
+{flag:'🇶🇦',name:'Katar',group:'B',rank:55,pop:3.0,gdp:88000,val:110,goalsFor:1.5,goalsAg:1.3,hdi:0.855,hdiRank:42,age:28.8,ms:2,msBest:'Faza grupowa (2022)',stars:[['A. Afif','Al-Sadd · 2× AFC Player of Year'],['A. Al-Haydos','kpt. · rekordzista cap.'],['B. Al-Rawi','def. pomocnik']],brands:[['Qatar Airways','linia roku 2024 wg Skytrax'],['Al Jazeera','media arabskiego świata'],['QIA','jeden z największych funduszy inwestycyjnych']],tempVal:42,tempDesc:'Doha w czerwcu — 42°C. Mecze 2022 w klimatyzowanych stadionach.',tempBg:'#2e1a0a',tempTxt:'#fb923c',budget:'~200 mln USD',budgetNote:'QFA',cw:{moment:'Gospodyni 2022 — 0 wygranych meczów, 1. gospodarz wyeliminowany w grupie. Afif: top strzelec kwalifikacji azjatyckich (12 goli).',export:'Nr 2 eksporter LNG na świecie — 20% globalnego rynku skroplonego gazu.',iphone:'1 iPhone ≈ 3 dni pracy (PKB per capita w top 5 świata).',film:'"Miasto na piasku" — dokument o budowie stadionów. Kontrowersje praw pracowników w globalnym mainstreamie.',food:'Machbous — ryż z jagnięciną, kardamonem i szafranem. Katarskie comfort food.',famous:'Tamim bin Hamad Al Thani (emir), Akram Afif, Sheikh Jassim.',economic:'300 mld USD na infrastrukturę MŚ 2022. Turniej 2026 = szansa sportowej rehabilitacji po fiasku u siebie.'}},
+{flag:'🇨🇭',name:'Szwajcaria',group:'B',rank:19,pop:8.8,gdp:92000,val:370,goalsFor:2.0,goalsAg:1.0,hdi:0.962,hdiRank:2,age:27.5,ms:13,msBest:'Ćwierćfinał (1934, 1938, 1954)',stars:[['G. Xhaka','Bayer Leverkusen · kpt.'],['X. Shaqiri','Chicago Fire · weteran'],['D. Ndoye','Bologna · skrzydłowy']],brands:[['Nestlé','największy producent żywności na świecie'],['Rolex','symbol luksusu zegarków'],['UBS','centrum finansowe Europy']],tempVal:22,tempDesc:'Zurych/Genewa w czerwcu — idealne europejskie lato 20–24°C',tempBg:'#2e1a1a',tempTxt:'#f87171',budget:'~55 mln USD',budgetNote:'SFV/ASF',cw:{moment:'Bez porażki w regulaminowym czasie na MŚ od 2006 — 5 edycji z rzędu. Specjaliści od dogrywek i rzutów karnych.',export:'Nr 1 eksporter zegarków na świecie — przemysł zegarmistrzowski: 20 mld CHF rocznie.',iphone:'1 iPhone ≈ 4–5 dni pracy (najwyższe płace w Europie).',film:'Chaplin spędził ostatnie 25 lat życia w Vevey nad Jeziorem Genewskim.',food:'Fondue serowe — stopiony gruyère z kirschem. Rytuał społeczny, szczególnie zimą.',famous:'Roger Federer, Le Corbusier (architekt), Albert Einstein (obywatel od 1901).',economic:'HDI #2 na świecie. Awans z grupy to minimum. Xhaka kończy karierę reprezentacyjną po tym turnieju.'}},
+{flag:'🇧🇷',name:'Brazylia',group:'C',rank:4,pop:215,gdp:10000,val:1135,goalsFor:2.0,goalsAg:0.9,hdi:0.760,hdiRank:89,age:27.2,ms:22,msBest:'Mistrz świata ×5',stars:[['Vinicius Jr.','Real Madrid · top attacker'],['Rodrygo','Real Madrid'],['Bruno Guimarães','Newcastle · pomocnik']],brands:[['Embraer','3. producent samolotów komercyjnych'],['Petrobras','gigant naftowy BRICS'],['Havaianas','klapki znane na całym świecie']],tempVal:25,tempDesc:'Rio de Janeiro w czerwcu — łagodna zima tropikalna, idealna dla futbolu',tempBg:'#1a2e1a',tempTxt:'#4ade80',budget:'~100 mln USD',budgetNote:'CBF',cw:{moment:'5 tytułów MŚ — jedyny rekordzista. 2022: eliminacja w ćwierćfinale przez Chorwację. Brazylia jest na każdym MŚ od 1930.',export:'Nr 1 eksporter kawy, soi i kurczaków. Rolnicze supermocarstwo.',iphone:'1 iPhone ≈ 2 miesiące pracy przeciętnego Brazylijczyka.',film:'"Cidade de Deus" (2002) — 4 Oscary. Karnawał w Rio transmitowany do 190 krajów.',food:'Feijoada — czarna fasola z wieprzowiną. Danie narodowe serwowane w piątek.',famous:'Pelé, Lula da Silva, Oscar Niemeyer (architekt Brasilii).',economic:'MŚ 2026 = próba generalna przed MŚ 2030 (Brazylia jest jednym z gospodarzy). Tytuł = gospodarcze szaleństwo.'}},
+{flag:'🇲🇦',name:'Maroko',group:'C',rank:14,pop:38,gdp:4200,val:480,goalsFor:1.6,goalsAg:0.7,hdi:0.698,hdiRank:123,age:27.8,ms:7,msBest:'4. miejsce (2022)',stars:[['H. Ziyech','Galatasaray · kreatywny pomocnik'],['A. En-Nesyri','Fenerbahçe · napastnik'],['A. Hakimi','PSG · prawoskrzydłowy']],brands:[['OCP Group','nr 1 eksporter fosforanów na świecie'],['Maroc Telecom','telco Afryki Zachodniej'],['Argan oil','kosmetyki — Maroko nr 1 producent']],tempVal:27,tempDesc:'Casablanca/Rabat w czerwcu — sucho, ciepło, Atlantyk chłodzi',tempBg:'#2e1a0a',tempTxt:'#fb923c',budget:'~30 mln USD',budgetNote:'FRMF',cw:{moment:'MŚ 2022: 1. afrykańska drużyna w półfinale. Pokonali Belgię, Hiszpanię, Portugalię. Hakimi strzelił decydującego karnego… matce.',export:'Nr 1 eksporter fosforanów — Maroko kontroluje 70% światowych zasobów.',iphone:'1 iPhone ≈ 4 miesiące pracy przeciętnego Marokańczyka.',film:'"Casablanca" (1942) — klasyk kręcony w Hollywood, ale lokalizacja symboliczna. Iñárritu kręcił "Babel" na pustyni marokańskiej.',food:'Tagine — duszone mięso z warzywami i przyprawami w glinianym garnku.',famous:'Ibn Battuta (podróżnik XIV w.), Zinedine Zidane (ur. w Marsylii, rodzice z Maroka), Malak Ouni.',economic:'Maroko gospodarzem MŚ 2030 (z Hiszpanią i Portugalią) — 2026 to próba generalna.'}},
+{flag:'🇭🇹',name:'Haiti',group:'C',rank:83,pop:12.2,gdp:1155,val:45,goalsFor:1.5,goalsAg:1.6,hdi:0.535,hdiRank:163,age:27.4,ms:2,msBest:'Faza grupowa',stars:[['D. Nazon','Esteghlal · 44 gole dla rep.'],['W. Isidor','Sunderland · ex-Francja U21'],['J. Bellegarde','pomocnik · Ligue 1']],brands:[['Rhum Barbancourt','ikona karaibskich rumów, od 1862 r.'],['Vetiver','2. producent na świecie — Chanel No.5'],['Sztuka naiwna','galerie od NYC po Paryż']],tempVal:31,tempDesc:'Port-au-Prince — tropikalne upały, wysoka wilgotność',tempBg:'#450a0a',tempTxt:'#fb923c',budget:'~4 mln USD',budgetNote:'Rząd Haiti · jednorazowo 2026',cw:{moment:'1974: Sanon przerwał serię Zoffa — 1143 min bez straty. Kwalifikacje 2026 rozegrano na Curaçao — Port-au-Prince kontrolują gangi.',export:'2. producent olejku vetiver na świecie — składnik perfum Chanel, Dior, Hermès.',iphone:'1 iPhone ≈ 10 miesięcy pracy przeciętnego Haitańczyka.',film:'"Ghosts of Cité Soleil" (Sundance 2006). Basquiat — artysta haitańsko-portorykański z NYC.',food:'Poul nan sos — kurczak duszony w pikantnym sosie kreolskim.',famous:'Wyclef Jean, Jean-Michel Basquiat, Toussaint Louverture.',economic:'+15% wzrost zainteresowania turystycznego nawet przy odpadnięciu w grupie.'}},
+{flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',name:'Szkocja',group:'C',rank:27,pop:5.5,gdp:45000,val:220,goalsFor:1.7,goalsAg:1.1,hdi:0.920,hdiRank:25,age:27.6,ms:9,msBest:'Faza grupowa',stars:[['A. Robertson','Liverpool · kpt. · lewoskrzydłowy'],['J. McGinn','Aston Villa · pomocnik'],['C. McGregor','Celtic · mózg gry']],brands:[['Johnnie Walker','nr 1 marka whisky na świecie'],['Diageo','globalny gigant napojów alkoholowych'],['Arnold Clark','największy dealer samochodów UK']],tempVal:16,tempDesc:'Edynburg w czerwcu — chłodne lato, wiatr i deszcz. Mecze w USA — szok klimatyczny.',tempBg:'#1a2030',tempTxt:'#60a5fa',budget:'~28 mln USD',budgetNote:'SFA',cw:{moment:'Szkocja na MŚ po 28 latach przerwy (ostatni raz 1998). Rekord: 9 edycji MŚ, 0 wyjść z grupy. Najdłuższa seria "never out of the group" w historii.',export:'Szkocka whisky = 70% wszystkich brytyjskich eksportów żywności i napojów. 1,3 mld butelek rocznie.',iphone:'1 iPhone ≈ 3 tygodnie pracy przeciętnego Szkota.',film:'"Braveheart" (1995), "Trainspotting" (1996), "Outlander". Edynburg = miasto Harrego Pottera.',food:'Haggis — owcze podroby z owsem gotowane w żołądku. Tradycja z XV w.',famous:'Sean Connery, Robbie Burns, Alexander Fleming (odkrywca penicyliny).',economic:'Szkocja jest częścią UK. Awans z grupy = historyczna szansa i 30× ekspozycja medialna.'}},
+{flag:'🇪🇸',name:'Hiszpania',group:'H',rank:2,pop:49.7,gdp:38300,val:861,goalsFor:2.6,goalsAg:0.9,hdi:0.918,hdiRank:28,age:26.1,ms:16,msBest:'MŚ 2010',stars:[['L. Yamal','Barcelona · 18 lat'],['Rodri','Man City · Ballon d\'Or \'24'],['Pedri','Barcelona · 50+ cap.']],brands:[['Zara / Inditex','największa sieć odzieżowa świata'],['Seat / CUPRA','auto z Barcelony'],['Banco Santander','top 5 banków Europy']],tempVal:26,tempDesc:'Madryt w czerwcu — suche, ciepłe lato śródziemnomorskie',tempBg:'#412402',tempTxt:'#fbbf24',budget:'~380 mln EUR',budgetNote:'RFEF · budżet 2025',cw:{moment:'Jedyna drużyna z 3 tytułami z rzędu (Euro 08 → MŚ 10 → Euro 12). Yamal miał 6 lat gdy Iniesta strzelał w finale 2010.',export:'Nr 1 eksporter oliwy z oliwek na świecie — ponad 1 mln ton rocznie.',iphone:'1 iPhone ≈ 1,5 miesiąca pracy przeciętnego Hiszpana.',film:'"Vicky Cristina Barcelona" (Allen, 2008), "Wszystko o mojej matce" (Almodóvar). Sagrada Família w tle połowy światowego kina.',food:'Paella — ryż z szafranem i owocami morza. Danie z Walencji, symbol Hiszpanii na świecie.',famous:'Pablo Picasso, Rafael Nadal, Salvador Dalí.',economic:'Szacowany impuls po ewentualnym tytule: +0,5% PKB i +8% turystyki w roku turnieju.'}}
+];
+const GHOSTS=[
+ {flag:'🇺🇸',name:'USA',group:'D',rank:11},{flag:'🇵🇾',name:'Paragwaj',group:'D',rank:62},
+ {flag:'🇦🇺',name:'Australia',group:'D',rank:24},{flag:'🇹🇷',name:'Turcja',group:'D',rank:28},
+ {flag:'🇩🇪',name:'Niemcy',group:'E',rank:13},{flag:'🇨🇼',name:'Curaçao',group:'E',rank:88},
+ {flag:'🇨🇮',name:'Wybrzeże Kości S.',group:'E',rank:23},{flag:'🇪🇨',name:'Ekwador',group:'E',rank:44},
+ {flag:'🇳🇱',name:'Holandia',group:'F',rank:7},{flag:'🇯🇵',name:'Japonia',group:'F',rank:17},
+ {flag:'🇸🇪',name:'Szwecja',group:'F',rank:29},{flag:'🇹🇳',name:'Tunezja',group:'F',rank:52},
+ {flag:'🇧🇪',name:'Belgia',group:'G',rank:3},{flag:'🇪🇬',name:'Egipt',group:'G',rank:38},
+ {flag:'🇮🇷',name:'Iran',group:'G',rank:20},{flag:'🇳🇿',name:'Nowa Zelandia',group:'G',rank:92},
+ {flag:'🇨🇻',name:'Cape Verde',group:'H',rank:78},{flag:'🇸🇦',name:'Arabia Saudyjska',group:'H',rank:56},
+ {flag:'🇺🇾',name:'Urugwaj',group:'H',rank:18},{flag:'🇫🇷',name:'Francja',group:'I',rank:6},
+ {flag:'🇸🇳',name:'Senegal',group:'I',rank:15},{flag:'🇮🇶',name:'Irak',group:'I',rank:66},
+ {flag:'🇳🇴',name:'Norwegia',group:'I',rank:30},{flag:'🇦🇷',name:'Argentyna',group:'J',rank:1},
+ {flag:'🇩🇿',name:'Algieria',group:'J',rank:42},{flag:'🇦🇹',name:'Austria',group:'J',rank:25},
+ {flag:'🇯🇴',name:'Jordania',group:'J',rank:69},{flag:'🇵🇹',name:'Portugalia',group:'K',rank:8},
+ {flag:'🇨🇩',name:'DR Kongo',group:'K',rank:50},{flag:'🇺🇿',name:'Uzbekistan',group:'K',rank:73},
+ {flag:'🇨🇴',name:'Kolumbia',group:'K',rank:9},{flag:'🇬🇧',name:'Anglia',group:'L',rank:5},
+ {flag:'🇭🇷',name:'Chorwacja',group:'L',rank:12},{flag:'🇬🇭',name:'Ghana',group:'L',rank:61},
+ {flag:'🇵🇦',name:'Panama',group:'L',rank:80},
+];
+let sortKey=null,sortDir=1,activeGroup='all',openIdx=null,viewMode='all';
+const collapsed=new Set();
+function hc(v){return v>=0.8?'#4ade80':v>=0.6?'#fbbf24':'#f87171'}
+function pct(v,mx){return Math.min(100,Math.round(v/mx*100))+'%'}
+function icos(v,u,fi,ei,mx){const f=Math.min(Math.max(1,Math.round(v/u)),mx||8);let h='';for(let i=0;i<(mx||8);i++)h+=i<f?'<span class="ic">'+fi+'</span>':'<span class="id">'+ei+'</span>';return h;}
+function badge(t){
+  if(t.msBest==='MŚ 2010')return'<span class="badge-sm bg-gold">🏆 MŚ 2010</span> <span class="badge-sm bg-blue">Euro ×4</span>';
+  if(t.msBest&&t.msBest.includes('Mistrz'))return'<span class="badge-sm bg-gold">🏆 5× Mistrz Świata</span>';
+  if(t.msBest&&t.msBest.includes('4. miejsce'))return'<span class="badge-sm bg-gold">🏅 '+t.msBest+'</span>';
+  if(t.msBest&&(t.msBest.includes('Ćwierćfinał')||t.msBest.includes('ćwierćfinał')))return'<span class="badge-sm bg-green">'+t.msBest+'</span>';
+  if(t.msBest&&t.msBest.includes('Finał'))return'<span class="badge-sm bg-gray">Finał (Czechosłowacja)</span>';
+  return'<span class="badge-sm bg-gray">'+(t.msBest||'Faza grupowa')+'</span>';
+}
+function detTpl(t){
+  const ac=t.gdp>20000?'#fbbf24':t.gdp>8000?'#4ade80':'#fb923c';
+  return'<div class="detail-inner">'
+    +'<div class="dp"><div class="dp-title">Profil &amp; gwiazdy</div><div style="margin-bottom:6px">'+badge(t)+'</div>'
+    +t.stars.map(function(s,i){return'<div class="star-r"><span class="star-idx">'+(i+1)+'.</span><div><span class="sname">'+s[0]+'</span><span class="sclub">'+s[1]+'</span></div></div>';}).join('')
+    +'<div style="margin-top:6px;font-size:9px;color:var(--text2)">'+t.budget+' &middot; '+t.budgetNote+'</div></div>'
+    +'<div class="dp"><div class="dp-title">Gospodarka &amp; klimat</div>'
+    +'<div class="cw-item"><span class="cw-ico">📦</span><div><span class="cw-label">Eksport nr 1</span><span class="cw-val">'+t.cw.export+'</span></div></div>'
+    +'<div class="cw-item"><span class="cw-ico">📱</span><div><span class="cw-label">Siła nabywcza (iPhone)</span><span class="cw-val">'+t.cw.iphone+'</span></div></div>'
+    +'<div class="dp-title" style="margin-top:6px">Marki eksportowe</div>'
+    +t.brands.map(function(b){return'<div class="brand-r"><span class="bdot" style="background:'+ac+'"></span><div><strong style="color:var(--text)">'+b[0]+'</strong> — '+b[1]+'</div></div>';}).join('')
+    +'<div class="temp-chip" style="background:'+t.tempBg+';color:'+t.tempTxt+'">☀ '+t.tempVal+'°C</div>'
+    +'<div style="font-size:8.5px;color:var(--text2);margin-top:4px;line-height:1.4">'+t.tempDesc+'</div></div>'
+    +'<div class="dp"><div class="dp-title">Kultura &amp; historia</div>'
+    +'<div class="cw-item"><span class="cw-ico">🎬</span><div><span class="cw-label">Film / scena</span><span class="cw-val">'+t.cw.film+'</span></div></div>'
+    +'<div class="cw-item"><span class="cw-ico">🍽️</span><div><span class="cw-label">Narodowa potrawa</span><span class="cw-val">'+t.cw.food+'</span></div></div>'
+    +'<div class="cw-item"><span class="cw-ico">🧑‍🎤</span><div><span class="cw-label">Najsłynniejsi (poza piłką)</span><span class="cw-val">'+t.cw.famous+'</span></div></div></div>'
+    +'<div class="dp"><div class="dp-title">Moment &amp; efekt MŚ</div>'
+    +'<div class="fact-card"><span class="fact-ey" style="color:'+ac+'">⚡ Ikoniczny moment</span><div class="fact-body">'+t.cw.moment+'</div></div>'
+    +'<div class="fact-card"><span class="fact-ey" style="color:var(--blue)">📈 Efekt ekonomiczny</span><div class="fact-body">'+t.cw.economic+'</div></div></div>'
+    +'</div>';
+}
+function teamRow(t){
+  const idx=T.indexOf(t);
+  const pip=viewMode==='all'?'<span class="grp-pip">Gr. '+t.group+'</span>':'';
+  return'<tr class="team-row" data-idx="'+idx+'" data-group="'+t.group+'" onclick="toggleDet('+idx+')">'
+    +'<td><div class="country-cell"><span class="flag-em">'+t.flag+'</span><div><div class="country-name">'+t.name+'</div>'+pip+'</div></div></td>'
+    +'<td><div class="rank-num">#'+t.rank+'</div></td>'
+    +'<td><div class="ig">'+icos(t.pop,5,'🧑','🧑')+'</div><div style="font-size:8.5px;color:var(--text2);margin-top:2px">'+t.pop+' mln</div></td>'
+    +'<td><div class="mbar"><div class="mbg"><div class="mfill" style="width:'+pct(t.gdp,100000)+';background:'+(t.gdp>20000?'#4ade80':t.gdp>8000?'#fbbf24':'#f87171')+'"></div></div><span class="mnum" style="color:'+(t.gdp>20000?'#4ade80':t.gdp>8000?'#fbbf24':'#f87171')+'">'+t.gdp.toLocaleString()+'</span></div><div style="font-size:8.5px;color:var(--text2)">USD/rok</div></td>'
+    +'<td><div class="ig">'+icos(t.val,100,'⚽','⚽',9)+'</div><div style="font-size:8.5px;color:var(--text2);margin-top:2px">'+t.val+' mln €</div></td>'
+    +'<td><div class="bar-cell"><div class="mbar"><span class="mlbl" style="color:#4ade80">ZDO</span><div class="mbg"><div class="mfill" style="width:'+pct(t.goalsFor,3.5)+';background:#4ade80"></div></div><span class="mnum" style="color:#4ade80">'+t.goalsFor.toFixed(1)+'</span></div><div class="mbar"><span class="mlbl" style="color:#f87171">STR</span><div class="mbg"><div class="mfill" style="width:'+pct(t.goalsAg,3.5)+';background:#f87171"></div></div><span class="mnum" style="color:#f87171">'+t.goalsAg.toFixed(1)+'</span></div></div></td>'
+    +'<td><div class="hdi-row"><div class="hbg"><div class="hfill" style="width:'+Math.round(t.hdi*100)+'%;background:'+hc(t.hdi)+'"></div></div><span class="hnum" style="color:'+hc(t.hdi)+'">'+t.hdi.toFixed(3)+'</span></div><div class="hrank">#'+t.hdiRank+'</div></td>'
+    +'<td><div class="age-num">'+t.age.toFixed(1)+'</div></td>'
+    +'<td><div class="ms-num">'+t.ms+'×</div></td>'
+    +'<td class="chev-cell"><span>&#709;</span></td>'
+    +'</tr>'
+    +'<tr class="detail-row" id="detail-'+idx+'" style="display:none"><td colspan="10">'+detTpl(t)+'</td></tr>';
+}
+function ghostRow(g){
+  const pip=viewMode==='all'?'<span class="grp-pip">Gr. '+g.group+'</span>':'';
+  return'<tr class="ghost" data-group="'+g.group+'"><td><div class="country-cell"><span class="flag-em">'+g.flag+'</span><div><div class="country-name">'+g.name+'</div>'+pip+'</div></div></td><td><div class="rank-num">#'+g.rank+'</div></td><td colspan="8" style="font-size:10px;color:var(--text3)">— dane do uzupełnienia —</td></tr>';
+}
+function grpHdr(g,count){
+  const col=collapsed.has(g);
+  return'<tr class="grp-hdr-row" onclick="toggleGrp(\''+g+'\')"><td colspan="10"><div class="grp-hdr-inner"><span class="grp-label">Grupa '+g+'</span><span class="grp-pill">'+count+' drużyn</span><span class="grp-chev '+(col?'':'open')+'">&#709;</span></div></td></tr>';
+}
+function build(){
+  const srch=document.getElementById('search').value.toLowerCase();
+  const tbody=document.getElementById('tbody');
+  let html='';let shown=0;
+  const all=T.concat(GHOSTS);
+  const filtered=all.filter(function(t){return(activeGroup==='all'||t.group===activeGroup)&&(t.name.toLowerCase().indexOf(srch)>-1||t.group.toLowerCase().indexOf(srch)>-1);});
+  if(viewMode==='groups'){
+    const grps=[...new Set(filtered.map(function(t){return t.group;}))].sort();
+    grps.forEach(function(g){
+      const inG=filtered.filter(function(t){return t.group===g;});
+      if(!inG.length)return;
+      html+=grpHdr(g,inG.length);
+      const col=collapsed.has(g);
+      inG.forEach(function(t){
+        const real=T.indexOf(t)>-1;
+        const row=real?teamRow(t):ghostRow(t);
+        html+=col?row.replace(/(<tr )(?!class="detail)/g,'$1style="display:none" '):row;
+        shown++;
+      });
+    });
+  } else {
+    let data=filtered.slice();
+    if(sortKey){
+      const real=data.filter(function(t){return T.indexOf(t)>-1;});
+      const gh=data.filter(function(t){return T.indexOf(t)===-1;});
+      real.sort(function(a,b){
+        if(sortKey==='name')return a.name.localeCompare(b.name)*sortDir;
+        if(sortKey==='rank')return(a.rank-b.rank)*sortDir;
+        return((b[sortKey]||0)-(a[sortKey]||0))*sortDir;
+      });
+      data=real.concat(gh);
+    }
+    data.forEach(function(t){html+=T.indexOf(t)>-1?teamRow(t):ghostRow(t);shown++;});
+  }
+  tbody.innerHTML=html;
+  document.getElementById('no-results').style.display=shown===0?'block':'none';
+  if(openIdx!==null){
+    const d=document.getElementById('detail-'+openIdx);
+    const r=document.querySelector('tr[data-idx="'+openIdx+'"]');
+    if(d){d.style.display='table-row';if(r)r.classList.add('row-open');}
+  }
+}
+function toggleDet(idx){
+  const d=document.getElementById('detail-'+idx);
+  const r=document.querySelector('tr[data-idx="'+idx+'"]');
+  if(!d)return;
+  const open=d.style.display!=='none';
+  document.querySelectorAll('.detail-row').forEach(function(x){x.style.display='none';});
+  document.querySelectorAll('.team-row').forEach(function(x){x.classList.remove('row-open');});
+  if(!open){d.style.display='table-row';if(r)r.classList.add('row-open');openIdx=idx;}else openIdx=null;
+}
+function toggleGrp(g){collapsed.has(g)?collapsed.delete(g):collapsed.add(g);openIdx=null;build();}
+function setView(m){
+  viewMode=m;openIdx=null;
+  document.getElementById('btn-all').classList.toggle('active',m==='all');
+  document.getElementById('btn-grp').classList.toggle('active',m==='groups');
+  document.getElementById('thead-row').style.display=m==='groups'?'none':'';
+  build();
+}
+function setGroup(btn){document.querySelectorAll('.gf').forEach(function(b){b.classList.remove('on');});btn.classList.add('on');activeGroup=btn.dataset.g;openIdx=null;build();}
+function sortBy(key,ci){
+  if(viewMode==='groups')return;
+  const ths=document.querySelectorAll('thead th');
+  ths.forEach(function(th){th.classList.remove('s-asc','s-desc');});
+  sortKey===key?sortDir*=-1:(sortKey=key,sortDir=1);
+  ths[ci].classList.add(sortDir===1?'s-desc':'s-asc');
+  openIdx=null;build();
+}
+function applyFilters(){openIdx=null;build();}
+build();
+</script>
+</body>
+</html>
+HTMLEOF
+wc -l /home/claude/index.html
